@@ -8,10 +8,10 @@ def importData(file):
 	xPosition1 = []
 	file.readline()
 	for line in file:
-		data = line.split(' ')
+		data = line.split('\t')
 		# print(data)
 		time.append(float(data[0]))
-		xPosition1.append(float(data[5]))
+		xPosition1.append(float(data[7]))
 	return (time, xPosition1)
 
 def drawPlot(x1, y, xAxis, yAxis, title, file):
@@ -26,5 +26,5 @@ def drawPlot(x1, y, xAxis, yAxis, title, file):
 	plt.show()
 
 if __name__ == '__main__':
-	y, time = importData('log.txt')
-	drawPlot(time, y, 'time', 'height', 'position', 'out')
+	y, time = importData('../log/log.txt')
+	drawPlot(time, y, 'time', 'height', 'position', '../log/out')

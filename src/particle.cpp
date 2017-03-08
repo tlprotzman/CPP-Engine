@@ -1,33 +1,34 @@
 #include "particle.h"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 
 // Constructors
 Particle::Particle() {
-	float zero[2];
-	zero[0] = zero[1] = 0;
-	init(0, zero, zero, 2);
+	float zero[3];
+	zero[0] = zero[1] = zero[2] = 0;
+	init(0, zero, zero, 3);
 }
 
 Particle::Particle(float mass_) {
-	float zero[2];
-	zero[0] = zero[1] = 0;
-	init(mass_, zero, zero, 2);
+	float zero[3];
+	zero[0] = zero[1] = zero[2] = 0;
+	init(mass_, zero, zero, 3);
 }
 
 Particle::Particle(float mass_, float* pos_) {
-	float zero[2];
-	zero[0] = zero[1] = 0;
-	init(mass_, pos_, zero, 2);
+	float zero[3];
+	zero[0] = zero[1] = zero[2] = 0;
+	init(mass_, pos_, zero, 3);
 }
 
 Particle::Particle(float mass_, float* pos_, float* vel_) {
-	init(mass_, pos_, vel_, 2);
+	init(mass_, pos_, vel_, 3);
 }
 
 Particle::Particle(float mass_, float* pos_, float* vel_, unsigned int dimensions_) {
-	init(mass_, pos_, vel_, dimensions);
+	init(mass_, pos_, vel_, dimensions_);
 }
 
 // The 'Real' Constructor
@@ -49,29 +50,37 @@ void Particle::init(float mass_, float* pos_, float* vel_, unsigned int dimensio
 	for (unsigned int i = 0; i < dimensions; i++){
 		force[i] = 0;
 	}
+
+	accel = new float[dimensions];
+	for (unsigned int i = 0; i < dimensions; i++){
+		accel[i] = 0;
+	}
 }
 
 
 // Destructor
-// Particle::~Particle() {
-// 	std::cout << "HIT";
-// 	delete pos;
-// 	delete vel;
-// 	delete force;
-// 	pos = vel = force = NULL;
-// }
+Particle::~Particle() {
+	delete pos;
+	delete vel;
+	delete force;
+	pos = vel = force = NULL;
+}
 
 
 // Accessors
-const float Particle::getMass() const {
+float Particle::getMass() const {
 	return mass;
 }
 
-const float* Particle::getPos() const {
+float* Particle::getAccel() const {
+	return accel;
+}
+
+float* Particle::getPos() const {
 	return pos;
 }
 
-const float* Particle::getVel() const {
+float* Particle::getVel() const {
 	return vel;
 }
 
@@ -81,9 +90,15 @@ const float* Particle::getVel() const {
 void Particle::applyForce(float* forces) {
 	for (unsigned int i = 0; i < dimensions; i++) {
 		force[i] += forces[i];
-		std::cout << i << forces[i];
 	}
 }
+// Adds an acceleration, ie gravity
+void Particle::applyAcceleration(float* accel_) {
+	for (unsigned int i = 0; i < dimensions; i++) {
+		accel[i] += accel_[i];
+	}
+}
+
 
 // Sets the position of a particle
 void Particle::setPos(float* newPos) {
@@ -110,10 +125,17 @@ void Particle::update(float dt) {
 
 
 // Private
+//Calculates the particles acceleration, given current force
+void Particle::updateAcceleration() {
+	for (unsigned int i = 0; i < dimensions; i++) {
+		accel[i] += force[i] / mass;
+	}
+}
+
 // Calculates the particles velocity, given the current force
 void Particle::updateVelocity(float dt) {
 	for (unsigned int i = 0; i < dimensions; i++) {
-		vel[i] += (force[i] / mass) * dt;	// v = (f/m) * dt
+		vel[i] += accel[i] * dt;	// v = a * dt
 	}
 }
 
@@ -128,13 +150,15 @@ void Particle::updatePosition(float dt) {
 // Outside functions
 //Print function
 std::ostream& operator<<(std::ostream& out, const Particle& p) {
-	out << "Particle Mass: " << p.getMass();
-	out << "\tVelocity: X: " << p.getVel()[0] << " Y: " << p.getVel()[1];
-	out << "\tPosition: X: " << p.getPos()[0] << " Y: " << p.getPos()[1];
+	out << "Particle Mass: " << p.getMass() << std::fixed << std::setprecision(4) ;
+	out << "\t\tVelocity: X: " << p.getVel()[0] << "\tY: " << p.getVel()[1] << "\tZ: " << p.getVel()[2];
+	out << "\t\tPosition: X: " << p.getPos()[0] << "\tY: " << p.getPos()[1] << "\tZ: " << p.getPos()[2];
 	return out;
 }
 
 void logParticle(std::ofstream& file, const Particle& p, float time) {
-	file << time << ' ' << p.getMass() << ' ' << p.getVel()[0] << ' '
-	  << p.getVel()[1] << ' ' << p.getPos()[0] << ' ' << p.getPos()[1] << '\n';
+	file << std::fixed << std::setprecision(4) 
+	  << time << '\t' << p.getMass() << '\t' << p.getVel()[0] << '\t'
+	  << p.getVel()[1] << '\t' << p.getVel()[2] << '\t' << p.getPos()[0]
+	  << '\t' << p.getPos()[1] << '\t' << p.getPos()[2] << '\n';
 }
