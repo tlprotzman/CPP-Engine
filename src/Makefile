@@ -9,7 +9,7 @@ all: main.out
 debug: CFLAGS += $(DEBUG)
 debug: main.out
 
-optimized: CFLAGS += $(OPTIMIZE)
+optimized: CFLAGS += $(OPTIMIZATION)
 optimized: main.out
 
 main.out: $(OBJS)
