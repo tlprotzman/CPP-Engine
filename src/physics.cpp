@@ -37,7 +37,7 @@ float clacMomentum(float mass, const float* velocity, float* result) {
 	return calcMagnitude(result, 3);
 }
 
-float clacKinetic(float mass, float* velocity, float* result) {
+float calcKinetic(float mass, float* velocity, float* result) {
 	for (unsigned int i = 0; i < 3; i++)
 		result[i] = 0.5 * mass * pow(velocity[i], 2);
 	return calcMagnitude(result, 3);
